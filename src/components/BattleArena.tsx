@@ -162,16 +162,21 @@ export const BattleArena = () => {
                   key={skill.id}
                   onClick={() => useSkill(skill.id)}
                   disabled={!isReady}
-                  className={`relative w-12 h-12 rounded-lg border-2 flex items-center justify-center text-xl transition-all ${
-                    isReady ? 'border-primary animate-skill-ready' : 'border-muted opacity-60'
+                  className={`relative w-12 h-12 rounded-lg border-2 flex items-center justify-center text-xl transition-all overflow-hidden ${
+                    isReady ? 'border-primary animate-skill-ready' : 'border-muted opacity-70'
                   } ${skill.rarity === 'rare' ? 'bg-rarity-rare-light' : 'bg-card'}`}
                 >
                   {skill.icon}
                   {!isReady && (
-                    <div 
-                      className="absolute inset-0 bg-foreground/30 rounded-lg"
-                      style={{ height: `${cooldownPercent * 100}%`, top: 'auto', bottom: 0 }}
-                    />
+                    <>
+                      <div 
+                        className="absolute inset-0 bg-foreground/40 rounded-md transition-all"
+                        style={{ height: `${cooldownPercent * 100}%`, top: 'auto', bottom: 0 }}
+                      />
+                      <span className="absolute text-[10px] font-bold text-foreground drop-shadow-sm">
+                        {Math.ceil(skill.currentCooldown)}
+                      </span>
+                    </>
                   )}
                 </button>
               );
