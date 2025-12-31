@@ -157,6 +157,12 @@ export interface Currency {
   skillCurrency: number;
 }
 
+// Dungeon Stages
+export interface DungeonStages {
+  skillDungeon: { chapter: number; stage: number };
+  eggDungeon: { chapter: number; stage: number };
+}
+
 // Tickets
 export interface Tickets {
   skillDungeon: number;
@@ -208,6 +214,7 @@ export interface GameState {
   
   // Dungeons
   tickets: Tickets;
+  dungeonStages: DungeonStages;
   currentDungeon: DungeonType | null;
   
   // Tech Tree

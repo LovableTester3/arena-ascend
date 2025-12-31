@@ -336,6 +336,10 @@ const initialState: Omit<GameState, 'setScreen' | 'startBattle' | 'updateBattle'
     maxEggDungeon: 5,
     lastRefresh: Date.now(),
   },
+  dungeonStages: {
+    skillDungeon: { chapter: 1, stage: 1 },
+    eggDungeon: { chapter: 1, stage: 1 },
+  },
   currentDungeon: null,
   techUpgrades: initialTechUpgrades,
   lastSaveTime: Date.now(),
@@ -990,12 +994,17 @@ export const useGameStore = create<GameStore>()(
         
         if (state.tickets[ticketKey] <= 0) return;
 
+        // Get dungeon-specific stage for battle scaling
+        const dungeonStage = state.dungeonStages[ticketKey];
+
         set({
           tickets: {
             ...state.tickets,
             [ticketKey]: state.tickets[ticketKey] - 1,
           },
           currentDungeon: type,
+          currentChapter: dungeonStage.chapter,
+          currentStage: dungeonStage.stage,
           battleState: 'idle',
         });
 
@@ -1004,7 +1013,29 @@ export const useGameStore = create<GameStore>()(
       },
 
       exitDungeon: (victory) => {
-        if (victory) {
+        const state = get();
+        const dungeonType = state.currentDungeon;
+        
+        if (victory && dungeonType) {
+          // Progress dungeon-specific stage
+          const ticketKey = dungeonType === 'skill' ? 'skillDungeon' : 'eggDungeon';
+          const currentDungeonStage = state.dungeonStages[ticketKey];
+          
+          let newChapter = currentDungeonStage.chapter;
+          let newStage = currentDungeonStage.stage + 1;
+          
+          if (newStage > 10) {
+            newStage = 1;
+            newChapter++;
+          }
+          
+          set({
+            dungeonStages: {
+              ...state.dungeonStages,
+              [ticketKey]: { chapter: newChapter, stage: newStage },
+            },
+          });
+          
           get().winBattle();
         } else {
           get().loseBattle();
