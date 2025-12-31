@@ -839,9 +839,16 @@ export const useGameStore = create<GameStore>()(
       },
 
       updateSkillCooldowns: (deltaTime) => {
+        // First update cooldowns
+        set(state => ({
+          skills: state.skills.map(s => ({
+            ...s,
+            currentCooldown: Math.max(0, s.currentCooldown - deltaTime),
+          })),
+        }));
+
+        // Then check for auto-use (after cooldowns are updated)
         const state = get();
-        
-        // Auto use skills if enabled
         if (state.autoSkills && state.battleState === 'fighting') {
           state.activeSkillIds.forEach(skillId => {
             const skill = state.skills.find(s => s.id === skillId);
@@ -850,13 +857,6 @@ export const useGameStore = create<GameStore>()(
             }
           });
         }
-
-        set({
-          skills: state.skills.map(s => ({
-            ...s,
-            currentCooldown: Math.max(0, s.currentCooldown - deltaTime),
-          })),
-        });
       },
 
       setAutoSkills: (auto) => {
