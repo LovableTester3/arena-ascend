@@ -379,9 +379,7 @@ export const useGameStore = create<GameStore>()(
 
       setScreen: (screen) => {
         set({ currentScreen: screen });
-        if (screen === 'battle') {
-          get().startBattle();
-        }
+        // Don't auto-start battle from here - let BattleArena handle it
       },
 
       getCalculatedStats: () => {
