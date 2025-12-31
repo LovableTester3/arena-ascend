@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Info } from 'lucide-react';
 
 export const DungeonsScreen = () => {
-  const { tickets, currentChapter, currentStage, enterDungeon, setScreen } = useGameStore();
+  const { tickets, dungeonStages, enterDungeon, setScreen } = useGameStore();
 
   const handleEnterDungeon = (type: 'skill' | 'egg') => {
     enterDungeon(type);
@@ -29,8 +29,8 @@ export const DungeonsScreen = () => {
         </div>
         
         <div className="mt-3 text-sm">
-          <p>Stage: {currentChapter}-{currentStage}</p>
-          <p className="text-muted-foreground">Reward: ~{20 + currentChapter * 10 + currentStage * 2} 💎</p>
+          <p>Stage: {dungeonStages.skillDungeon.chapter}-{dungeonStages.skillDungeon.stage}</p>
+          <p className="text-muted-foreground">Reward: ~{20 + dungeonStages.skillDungeon.chapter * 10 + dungeonStages.skillDungeon.stage * 2} 💎</p>
         </div>
 
         <Button 
@@ -86,7 +86,8 @@ export const DungeonsScreen = () => {
         </div>
 
         <div className="mt-3 text-sm">
-          <p>Reward: 2 Eggs per win</p>
+          <p>Stage: {dungeonStages.eggDungeon.chapter}-{dungeonStages.eggDungeon.stage}</p>
+          <p className="text-muted-foreground">Reward: 2 Eggs per win</p>
         </div>
 
         <Button 
