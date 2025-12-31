@@ -1104,6 +1104,16 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'ultra-forge-save',
+      merge: (persistedState, currentState) => {
+        // Deep merge to preserve skill cooldowns and other nested state
+        const persisted = persistedState as Partial<GameState>;
+        return {
+          ...currentState,
+          ...persisted,
+          // Ensure skills preserve their cooldown state
+          skills: persisted.skills ?? currentState.skills,
+        };
+      },
     }
   )
 );
