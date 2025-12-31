@@ -2,8 +2,8 @@ import { useGameStore } from '@/store/gameStore';
 import { Settings, Trophy } from 'lucide-react';
 
 export const GameHeader = () => {
-  const { player, currency } = useGameStore();
-  const stats = useGameStore(s => s.getCalculatedStats());
+  const player = useGameStore(s => s.player);
+  const currency = useGameStore(s => s.currency);
 
   return (
     <header className="bg-card border-b px-3 py-2">

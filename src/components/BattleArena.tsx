@@ -1,21 +1,34 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
 export const BattleArena = () => {
-  const { 
-    playerEntity, enemies, projectiles, damageNumbers, battleState,
-    currentChapter, currentStage, skills, activeSkillIds, autoSkills,
-    updateBattle, updateSkillCooldowns, updateEggTimer, updateHatchingEggs,
-    useSkill, setAutoSkills, startBattle
-  } = useGameStore();
+  const playerEntity = useGameStore(s => s.playerEntity);
+  const enemies = useGameStore(s => s.enemies);
+  const projectiles = useGameStore(s => s.projectiles);
+  const damageNumbers = useGameStore(s => s.damageNumbers);
+  const battleState = useGameStore(s => s.battleState);
+  const currentChapter = useGameStore(s => s.currentChapter);
+  const currentStage = useGameStore(s => s.currentStage);
+  const skills = useGameStore(s => s.skills);
+  const activeSkillIds = useGameStore(s => s.activeSkillIds);
+  const autoSkills = useGameStore(s => s.autoSkills);
+  const updateBattle = useGameStore(s => s.updateBattle);
+  const updateSkillCooldowns = useGameStore(s => s.updateSkillCooldowns);
+  const updateEggTimer = useGameStore(s => s.updateEggTimer);
+  const updateHatchingEggs = useGameStore(s => s.updateHatchingEggs);
+  const useSkill = useGameStore(s => s.useSkill);
+  const setAutoSkills = useGameStore(s => s.setAutoSkills);
+  const startBattle = useGameStore(s => s.startBattle);
   
   const lastTimeRef = useRef(Date.now());
+  const hasStartedRef = useRef(false);
 
   useEffect(() => {
-    if (battleState === 'idle') {
+    if (!hasStartedRef.current && battleState === 'idle') {
+      hasStartedRef.current = true;
       startBattle();
     }
-  }, []);
+  }, [battleState, startBattle]);
 
   useEffect(() => {
     const gameLoop = setInterval(() => {
@@ -32,7 +45,10 @@ export const BattleArena = () => {
     return () => clearInterval(gameLoop);
   }, [updateBattle, updateSkillCooldowns, updateEggTimer, updateHatchingEggs]);
 
-  const activeSkills = skills.filter(s => activeSkillIds.includes(s.id));
+  const activeSkills = useMemo(() => 
+    skills.filter(s => activeSkillIds.includes(s.id)),
+    [skills, activeSkillIds]
+  );
 
   return (
     <div className="flex flex-col h-full">
