@@ -16,6 +16,7 @@ export const BattleArena = () => {
   const updateSkillCooldowns = useGameStore(s => s.updateSkillCooldowns);
   const updateEggTimer = useGameStore(s => s.updateEggTimer);
   const updateHatchingEggs = useGameStore(s => s.updateHatchingEggs);
+  const updateHammerTimer = useGameStore(s => s.updateHammerTimer);
   const useSkill = useGameStore(s => s.useSkill);
   const setAutoSkills = useGameStore(s => s.setAutoSkills);
   const startBattle = useGameStore(s => s.startBattle);
@@ -40,10 +41,11 @@ export const BattleArena = () => {
       updateSkillCooldowns(delta);
       updateEggTimer(delta);
       updateHatchingEggs(delta);
+      updateHammerTimer(delta);
     }, 50);
 
     return () => clearInterval(gameLoop);
-  }, [updateBattle, updateSkillCooldowns, updateEggTimer, updateHatchingEggs]);
+  }, [updateBattle, updateSkillCooldowns, updateEggTimer, updateHatchingEggs, updateHammerTimer]);
 
   const activeSkills = useMemo(() => 
     skills.filter(s => activeSkillIds.includes(s.id)),

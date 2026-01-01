@@ -1,9 +1,10 @@
 import { useGameStore } from '@/store/gameStore';
-import { Swords, Sparkles, Dog, Castle, GitBranch } from 'lucide-react';
+import { Swords, Sparkles, Dog, Castle, GitBranch, Shield } from 'lucide-react';
 import { GameScreen } from '@/types/game';
 
 const navItems: { screen: GameScreen; icon: typeof Swords; label: string }[] = [
   { screen: 'battle', icon: Swords, label: 'Battle' },
+  { screen: 'gear', icon: Shield, label: 'Gear' },
   { screen: 'skills', icon: Sparkles, label: 'Skills' },
   { screen: 'pets', icon: Dog, label: 'Pets' },
   { screen: 'dungeons', icon: Castle, label: 'Dungeons' },
