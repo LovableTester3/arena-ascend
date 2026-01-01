@@ -700,6 +700,18 @@ export const useGameStore = create<GameStore>()(
 
         // Exit dungeon if in one
         if (state.currentDungeon) {
+          // Progress dungeon-specific stage for next run
+          const ticketKey = state.currentDungeon === 'skill' ? 'skillDungeon' : 'eggDungeon';
+          const currentDungeonStage = state.dungeonStages[ticketKey];
+          
+          let newDungeonChapter = currentDungeonStage.chapter;
+          let newDungeonStage = currentDungeonStage.stage + 1;
+          
+          if (newDungeonStage > 10) {
+            newDungeonStage = 1;
+            newDungeonChapter++;
+          }
+          
           set({
             battleState: 'victory',
             currentDungeon: null,
@@ -710,6 +722,10 @@ export const useGameStore = create<GameStore>()(
               xp: newXp,
               level: newLevel,
               xpToNextLevel: newXpToNext,
+            },
+            dungeonStages: {
+              ...state.dungeonStages,
+              [ticketKey]: { chapter: newDungeonChapter, stage: newDungeonStage },
             },
           });
           
