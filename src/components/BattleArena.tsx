@@ -1,5 +1,48 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import { GearSlot } from '@/types/game';
+
+const slotOrder: GearSlot[] = ['weapon', 'shield', 'armor', 'legs', 'boots'];
+
+const slotIcons: Record<GearSlot, string> = {
+  weapon: '⚔️',
+  shield: '🛡️',
+  armor: '🎽',
+  legs: '👖',
+  boots: '👢',
+};
+
+const EquippedGearBar = () => {
+  const equippedGear = useGameStore(s => s.equippedGear);
+  
+  const getRarityBorder = (rarity: string) => {
+    switch (rarity) {
+      case 'rare': return 'border-[hsl(var(--rarity-rare))]';
+      case 'epic': return 'border-[hsl(var(--rarity-epic))]';
+      case 'legendary': return 'border-[hsl(var(--rarity-legendary))]';
+      default: return 'border-border';
+    }
+  };
+
+  return (
+    <div className="px-3 py-1.5 bg-card/80 border-t flex items-center justify-center gap-1">
+      {slotOrder.map(slot => {
+        const gear = equippedGear[slot];
+        return (
+          <div
+            key={slot}
+            className={`w-8 h-8 rounded flex items-center justify-center text-sm border-2 ${
+              gear ? `${getRarityBorder(gear.rarity)} bg-card` : 'border-dashed border-muted-foreground/30 bg-muted/50'
+            }`}
+            title={gear ? `${gear.name}: +${gear.attackBonus}⚔ +${gear.hpBonus}❤️` : slot}
+          >
+            {gear ? gear.icon : <span className="opacity-30">{slotIcons[slot]}</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export const BattleArena = () => {
   const playerEntity = useGameStore(s => s.playerEntity);
@@ -143,6 +186,9 @@ export const BattleArena = () => {
           </div>
         )}
       </div>
+
+      {/* Equipped Gear Display */}
+      <EquippedGearBar />
 
       {/* Skills bar */}
       <div className="p-2 bg-card border-t">
