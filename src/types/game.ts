@@ -49,6 +49,20 @@ export interface Egg {
   isHatching: boolean;
 }
 
+// Gear definitions
+export type GearSlot = 'weapon' | 'shield' | 'armor' | 'legs' | 'boots';
+
+export interface Gear {
+  id: string;
+  name: string;
+  slot: GearSlot;
+  rarity: Rarity;
+  icon: string;
+  attackBonus: number;
+  hpBonus: number;
+  level: number;
+}
+
 // Dungeon definitions
 export type DungeonType = 'skill' | 'egg';
 
@@ -89,7 +103,7 @@ export interface TechUpgrade {
 }
 
 export interface TechEffect {
-  type: 'attack' | 'defense' | 'hp' | 'critChance' | 'goldBonus' | 'currencyBonus' | 'eggGen' | 'ticketRegen' | 'autoSpeed' | 'idleBonus' | 'autoSkillCd';
+  type: 'attack' | 'defense' | 'hp' | 'critChance' | 'goldBonus' | 'currencyBonus' | 'eggGen' | 'ticketRegen' | 'autoSpeed' | 'idleBonus' | 'autoSkillCd' | 'hammerGen';
   value: number;
   valuePerLevel: number;
 }
@@ -155,6 +169,7 @@ export interface PlayerStats {
 export interface Currency {
   gold: number;
   skillCurrency: number;
+  hammers: number;
 }
 
 // Dungeon Stages
@@ -172,8 +187,17 @@ export interface Tickets {
   lastRefresh: number; // timestamp
 }
 
+// Equipped Gear
+export interface EquippedGear {
+  weapon: Gear | null;
+  shield: Gear | null;
+  armor: Gear | null;
+  legs: Gear | null;
+  boots: Gear | null;
+}
+
 // Game screen
-export type GameScreen = 'battle' | 'skills' | 'pets' | 'dungeons' | 'techTree';
+export type GameScreen = 'battle' | 'gear' | 'skills' | 'pets' | 'dungeons' | 'techTree';
 
 // Battle state
 export type BattleState = 'idle' | 'fighting' | 'victory' | 'defeat' | 'dungeon';
@@ -211,6 +235,11 @@ export interface GameState {
   maxEggs: number;
   eggTimer: number;
   equippedPetId: string | null;
+  
+  // Gear
+  gearInventory: Gear[];
+  equippedGear: EquippedGear;
+  hammerTimer: number;
   
   // Dungeons
   tickets: Tickets;

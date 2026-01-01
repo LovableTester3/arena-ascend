@@ -13,6 +13,10 @@ import {
   Stage,
   DungeonType,
   BattleState,
+  Gear,
+  GearSlot,
+  Rarity,
+  EquippedGear,
 } from '@/types/game';
 
 // Initial skills
@@ -316,7 +320,17 @@ const initialState: Omit<GameState, 'setScreen' | 'startBattle' | 'updateBattle'
   currency: {
     gold: 0,
     skillCurrency: 100, // Start with some to buy first skill
+    hammers: 0,
   },
+  gearInventory: [],
+  equippedGear: {
+    weapon: null,
+    shield: null,
+    armor: null,
+    legs: null,
+    boots: null,
+  },
+  hammerTimer: 0,
   playerEntity: null,
   enemies: [],
   projectiles: [],
@@ -370,6 +384,11 @@ interface GameStore extends GameState {
   updateEggTimer: (deltaTime: number) => void;
   updateHatchingEggs: (deltaTime: number) => void;
   updateSkillCooldowns: (deltaTime: number) => void;
+  updateHammerTimer: (deltaTime: number) => void;
+  forgeGear: () => void;
+  equipGear: (gearId: string) => void;
+  unequipGear: (slot: GearSlot) => void;
+  sellGear: (gearId: string) => void;
   getCalculatedStats: () => { hp: number; attack: number; defense: number; critChance: number };
   getTechBonus: (type: string) => number;
   winBattle: () => void;
@@ -388,12 +407,20 @@ export const useGameStore = create<GameStore>()(
 
       getCalculatedStats: () => {
         const state = get();
-        const { player, pets, equippedPetId, techUpgrades } = state;
+        const { player, pets, equippedPetId, techUpgrades, equippedGear } = state;
         
         let hp = player.baseHp;
         let attack = player.baseAttack;
         let defense = player.baseDefense;
         let critChance = player.critChance;
+
+        // Add gear bonuses
+        Object.values(equippedGear).forEach(gear => {
+          if (gear) {
+            hp += gear.hpBonus;
+            attack += gear.attackBonus;
+          }
+        });
 
         // Add pet bonuses
         if (equippedPetId) {
@@ -676,7 +703,7 @@ export const useGameStore = create<GameStore>()(
           set({
             battleState: 'victory',
             currentDungeon: null,
-            currency: { gold: newGold, skillCurrency: newSkillCurrency },
+            currency: { ...state.currency, gold: newGold, skillCurrency: newSkillCurrency },
             eggs: newEggs,
             player: {
               ...state.player,
@@ -697,7 +724,7 @@ export const useGameStore = create<GameStore>()(
             currentStage: newStage,
             highestChapter: Math.max(state.highestChapter, newChapter),
             highestStage: newChapter > state.highestChapter ? newStage : Math.max(state.highestStage, newStage),
-            currency: { gold: newGold, skillCurrency: newSkillCurrency },
+            currency: { ...state.currency, gold: newGold, skillCurrency: newSkillCurrency },
             player: {
               ...state.player,
               xp: newXp,
@@ -1099,6 +1126,132 @@ export const useGameStore = create<GameStore>()(
             xpToNextLevel: newXpToNext,
           },
           lastOfflineTime: now,
+        });
+      },
+
+      updateHammerTimer: (deltaTime) => {
+        const state = get();
+        const hammerGenSpeed = 1 + state.getTechBonus('hammerGen');
+        
+        let newTimer = state.hammerTimer + deltaTime * hammerGenSpeed;
+        let newHammers = state.currency.hammers;
+        
+        // Generate 1 hammer every 5 seconds
+        while (newTimer >= 5) {
+          newTimer -= 5;
+          newHammers++;
+        }
+
+        set({
+          hammerTimer: newTimer,
+          currency: { ...state.currency, hammers: newHammers },
+        });
+      },
+
+      forgeGear: () => {
+        const state = get();
+        if (state.currency.hammers < 1) return;
+
+        // Determine rarity based on chance
+        const rand = Math.random();
+        let rarity: Rarity = 'common';
+        if (rand < 0.02) rarity = 'legendary';
+        else if (rand < 0.08) rarity = 'epic';
+        else if (rand < 0.25) rarity = 'rare';
+
+        // Determine slot
+        const slots: GearSlot[] = ['weapon', 'shield', 'armor', 'legs', 'boots'];
+        const slot = slots[Math.floor(Math.random() * slots.length)];
+
+        // Generate stats based on rarity and player level
+        const rarityMultipliers = { common: 1, rare: 1.5, epic: 2.5, legendary: 4 };
+        const mult = rarityMultipliers[rarity];
+        const levelBonus = state.player.level;
+        
+        const baseAtk = slot === 'weapon' ? 8 : slot === 'shield' ? 2 : 3;
+        const baseHp = slot === 'weapon' ? 5 : slot === 'armor' ? 15 : slot === 'shield' ? 10 : 8;
+
+        const gearNames: Record<GearSlot, string[]> = {
+          weapon: ['Sword', 'Blade', 'Axe', 'Hammer', 'Dagger'],
+          shield: ['Shield', 'Buckler', 'Barrier', 'Aegis'],
+          armor: ['Chestplate', 'Vest', 'Cuirass', 'Mail'],
+          legs: ['Greaves', 'Leggings', 'Pants', 'Guards'],
+          boots: ['Boots', 'Sabatons', 'Treads', 'Footwear'],
+        };
+
+        const gearIcons: Record<GearSlot, string> = {
+          weapon: '⚔️',
+          shield: '🛡️',
+          armor: '🎽',
+          legs: '👖',
+          boots: '👢',
+        };
+
+        const names = gearNames[slot];
+        const name = names[Math.floor(Math.random() * names.length)];
+        const rarityPrefix = rarity === 'legendary' ? 'Legendary ' : rarity === 'epic' ? 'Epic ' : rarity === 'rare' ? 'Fine ' : '';
+
+        const newGear: Gear = {
+          id: generateId(),
+          name: `${rarityPrefix}${name}`,
+          slot,
+          rarity,
+          icon: gearIcons[slot],
+          attackBonus: Math.floor((baseAtk + levelBonus * 0.5) * mult),
+          hpBonus: Math.floor((baseHp + levelBonus) * mult),
+          level: state.player.level,
+        };
+
+        set({
+          currency: { ...state.currency, hammers: state.currency.hammers - 1 },
+          gearInventory: [...state.gearInventory, newGear],
+        });
+      },
+
+      equipGear: (gearId) => {
+        set(state => {
+          const gear = state.gearInventory.find(g => g.id === gearId);
+          if (!gear) return state;
+
+          const currentEquipped = state.equippedGear[gear.slot];
+          let newInventory = state.gearInventory.filter(g => g.id !== gearId);
+          
+          // If something was equipped, put it back in inventory
+          if (currentEquipped) {
+            newInventory = [...newInventory, currentEquipped];
+          }
+
+          return {
+            gearInventory: newInventory,
+            equippedGear: { ...state.equippedGear, [gear.slot]: gear },
+          };
+        });
+      },
+
+      unequipGear: (slot) => {
+        set(state => {
+          const gear = state.equippedGear[slot];
+          if (!gear) return state;
+
+          return {
+            gearInventory: [...state.gearInventory, gear],
+            equippedGear: { ...state.equippedGear, [slot]: null },
+          };
+        });
+      },
+
+      sellGear: (gearId) => {
+        set(state => {
+          const gear = state.gearInventory.find(g => g.id === gearId);
+          if (!gear) return state;
+
+          const rarityValues = { common: 5, rare: 15, epic: 50, legendary: 200 };
+          const sellValue = rarityValues[gear.rarity] * gear.level;
+
+          return {
+            gearInventory: state.gearInventory.filter(g => g.id !== gearId),
+            currency: { ...state.currency, gold: state.currency.gold + sellValue },
+          };
         });
       },
     }),

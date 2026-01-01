@@ -2,6 +2,7 @@ import { useGameStore } from '@/store/gameStore';
 import { GameHeader } from '@/components/GameHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { BattleArena } from '@/components/BattleArena';
+import { GearScreen } from '@/components/GearScreen';
 import { SkillsScreen } from '@/components/SkillsScreen';
 import { PetsScreen } from '@/components/PetsScreen';
 import { DungeonsScreen } from '@/components/DungeonsScreen';
@@ -14,6 +15,8 @@ const Index = () => {
     switch (currentScreen) {
       case 'battle':
         return <BattleArena />;
+      case 'gear':
+        return <GearScreen />;
       case 'skills':
         return <SkillsScreen />;
       case 'pets':
