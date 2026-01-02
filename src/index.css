@@ -263,16 +263,18 @@
   background: linear-gradient(to right, hsl(var(--destructive)), hsl(var(--destructive) / 0.85));
 }
 
-.forge-button::before {
-  content: '';
-  @apply absolute inset-0;
-  background: linear-gradient(to right, transparent, hsl(0 0% 100% / 0.2), transparent);
+.forge-shimmer {
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+/* Ribbon shape for forge button */
+.ribbon-shape {
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 95% 100%, 50% 85%, 5% 100%, 0 70%);
 }
 
 @keyframes float {
