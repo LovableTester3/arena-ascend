@@ -1,48 +1,40 @@
 import { useGameStore } from '@/store/gameStore';
-import { formatNumber, formatTime } from '@/lib/utils';
-import { Settings } from 'lucide-react';
+import { formatNumber } from '@/lib/utils';
 
 export const GameHeader = () => {
   const player = useGameStore(s => s.player);
   const currency = useGameStore(s => s.currency);
-  const lastOfflineTime = useGameStore(s => s.lastOfflineTime);
 
-  const offlineSeconds = Math.floor((Date.now() - lastOfflineTime) / 1000);
+  // Generate a random guest ID for display
+  const guestId = 95529;
 
   return (
-    <header className="bg-card px-3 py-2">
+    <header className="bg-card px-2 py-1.5 border-b">
       <div className="flex items-center justify-between">
-        {/* Left: Avatar and level */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/30">
-            <span className="text-xl">👤</span>
+        {/* Left: Avatar with guest info and gold */}
+        <div className="flex items-center gap-1.5">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+            <span className="text-lg">👤</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">GUEST</span>
-            <span className="text-xs font-bold">Lv.{player.level}</span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-[10px] text-muted-foreground font-medium">Guest {guestId}</span>
+            <div className="flex items-center gap-0.5">
+              <span className="text-xs">🪙</span>
+              <span className="text-[10px] font-bold text-game-gold">{formatNumber(currency.gold)}</span>
+            </div>
           </div>
         </div>
         
-        {/* Center: Currencies */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-game-gold/20 px-2 py-1 rounded-full">
-            <span className="text-sm">🪙</span>
-            <span className="text-xs font-semibold text-game-gold">{formatNumber(currency.gold)}</span>
-          </div>
-          <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+        {/* Right: Gems and Diamonds as pill badges */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 bg-rarity-rare/20 px-2 py-0.5 rounded-full border border-rarity-rare/30">
             <span className="text-sm">💎</span>
-            <span className="text-xs font-semibold text-primary">{formatNumber(currency.skillCurrency)}</span>
+            <span className="text-[10px] font-bold text-rarity-rare">{formatNumber(currency.skillCurrency)}</span>
           </div>
-        </div>
-        
-        {/* Right: Offline timer and settings */}
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-muted-foreground">
-            ⏱️ {formatTime(offlineSeconds)}
+          <div className="flex items-center gap-1 bg-rarity-epic/20 px-2 py-0.5 rounded-full border border-rarity-epic/30">
+            <span className="text-sm">💜</span>
+            <span className="text-[10px] font-bold text-rarity-epic">{formatNumber(currency.hammers * 1000000)}</span>
           </div>
-          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-            <Settings className="w-4 h-4 text-muted-foreground" />
-          </button>
         </div>
       </div>
     </header>
