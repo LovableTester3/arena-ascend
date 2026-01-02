@@ -1,45 +1,48 @@
 import { useGameStore } from '@/store/gameStore';
-import { Settings, Trophy } from 'lucide-react';
+import { formatNumber, formatTime } from '@/lib/utils';
+import { Settings } from 'lucide-react';
 
 export const GameHeader = () => {
   const player = useGameStore(s => s.player);
   const currency = useGameStore(s => s.currency);
+  const lastOfflineTime = useGameStore(s => s.lastOfflineTime);
+
+  const offlineSeconds = Math.floor((Date.now() - lastOfflineTime) / 1000);
 
   return (
-    <header className="bg-card border-b px-3 py-2">
+    <header className="bg-card px-3 py-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="text-sm">
-            <span className="font-semibold">Lv.{player.level}</span>
+        {/* Left: Avatar and level */}
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/30">
+            <span className="text-xl">👤</span>
           </div>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-1 text-sm">
-            <span>💰</span>
-            <span>{currency.gold}</span>
-          </div>
-          <div className="flex items-center gap-1 text-sm">
-            <span>💎</span>
-            <span>{currency.skillCurrency}</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground">GUEST</span>
+            <span className="text-xs font-bold">Lv.{player.level}</span>
           </div>
         </div>
         
+        {/* Center: Currencies */}
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-            <Trophy className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-            <Settings className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-1 bg-game-gold/20 px-2 py-1 rounded-full">
+            <span className="text-sm">🪙</span>
+            <span className="text-xs font-semibold text-game-gold">{formatNumber(currency.gold)}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+            <span className="text-sm">💎</span>
+            <span className="text-xs font-semibold text-primary">{formatNumber(currency.skillCurrency)}</span>
+          </div>
         </div>
-      </div>
-
-      {/* XP bar */}
-      <div className="mt-1.5">
-        <div className="stat-bar stat-bar-xp">
-          <div 
-            className="stat-bar-xp-fill"
-            style={{ width: `${(player.xp / player.xpToNextLevel) * 100}%` }}
-          />
+        
+        {/* Right: Offline timer and settings */}
+        <div className="flex items-center gap-2">
+          <div className="text-xs text-muted-foreground">
+            ⏱️ {formatTime(offlineSeconds)}
+          </div>
+          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </div>
     </header>

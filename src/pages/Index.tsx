@@ -2,6 +2,7 @@ import { useGameStore } from '@/store/gameStore';
 import { GameHeader } from '@/components/GameHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { BattleArena } from '@/components/BattleArena';
+import { ForgeSection } from '@/components/ForgeSection';
 import { GearScreen } from '@/components/GearScreen';
 import { SkillsScreen } from '@/components/SkillsScreen';
 import { PetsScreen } from '@/components/PetsScreen';
@@ -14,7 +15,12 @@ const Index = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'battle':
-        return <BattleArena />;
+        return (
+          <>
+            <BattleArena />
+            <ForgeSection />
+          </>
+        );
       case 'gear':
         return <GearScreen />;
       case 'skills':
@@ -26,14 +32,19 @@ const Index = () => {
       case 'techTree':
         return <TechTreeScreen />;
       default:
-        return <BattleArena />;
+        return (
+          <>
+            <BattleArena />
+            <ForgeSection />
+          </>
+        );
     }
   };
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-background">
       <GameHeader />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden flex flex-col">
         {renderScreen()}
       </main>
       <BottomNav />
